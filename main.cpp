@@ -6,7 +6,7 @@ RCSwitch mySwitch = RCSwitch();
 void setup() {
 	Serial.begin(9600);
 	mySwitch.enableReceive(0); // interrupt 0 => digital pin 2 on Uno/Nano
-	Serial.println("Ready to sniff 433MHz signals...");
+	Serial.println("Ready to sniff 315MHz signals...");
 }
 
 void loop() {

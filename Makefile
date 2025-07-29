@@ -29,7 +29,7 @@ CORE_SRC_C := $(wildcard $(AVR_CORE)/cores/arduino/*.c)
 CORE_SRC_CPP := $(wildcard $(AVR_CORE)/cores/arduino/*.cpp)
 CORE_OBJ_C := $(CORE_SRC_C:.c=.o)
 CORE_OBJ_CPP := $(CORE_SRC_CPP:.cpp=.o)
-CORE_LIB := core.so
+CORE_LIB := core.a
 
 TARGET := main
 
@@ -59,7 +59,7 @@ env:
 # RCSwitch
 RC_SWITCH_SRC := rc-switch/RCSwitch.cpp
 RC_SWITCH_OBJ := $(RC_SWITCH_SRC:.cpp=.o)
-RC_SWITCH_LIB := rc-switch.so
+RC_SWITCH_LIB := rc-switch.a
 
 $(RC_SWITCH_OBJ): %.o : %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
@@ -87,6 +87,7 @@ clean: clean-rc-switch clean-core
 	rm $(OBJ) $(TARGET)
 
 flash: $(TARGET).hex
-	avrdude -v -p$(MCU) -carduino -P/dev/ttyUSB0 -b115200 -D -Uflash:w:$(TARGET).hex:i
+	avrdude -v -p$(MCU) -carduino -P$(wildcard /dev/ttyUSB*) \
+		-b115200 -D -Uflash:w:$(TARGET).hex:i
 
 .PHONY: clean clean-rc-switch clean-core env
