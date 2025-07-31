@@ -31,9 +31,9 @@ CORE_OBJ_C := $(CORE_SRC_C:.c=.o)
 CORE_OBJ_CPP := $(CORE_SRC_CPP:.cpp=.o)
 CORE_LIB := core.a
 
-TARGET := main
+TARGETS := send receive
 
-all: $(TARGET).hex
+all: $(patsubst %,%.hex,$(TARGETS))
 
 $(CORE_OBJ_C): %.o : %.c
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -71,23 +71,27 @@ clean-rc-switch: clean-core
 	rm $(RC_SWITCH_LIB) $(RC_SWITCH_OBJ)
 
 # Main
-SRC := main.cpp
+SRC := send.cpp receive.cpp
 OBJ := $(SRC:.cpp=.o)
 
 $(OBJ): %.o : %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(TARGET).elf: $(OBJ) $(RC_SWITCH_LIB) $(CORE_LIB)
+%.elf: %.o $(RC_SWITCH_LIB) $(CORE_LIB)
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
-$(TARGET).hex: $(TARGET).elf
+%.hex: %.elf
 	$(OBJCOPY) -O ihex -R .eeprom $< $@
 
 clean: clean-rc-switch clean-core
-	rm $(OBJ) $(TARGET)
+	rm $(OBJ) $(TARGETS)
 
-flash: $(TARGET).hex
+flash-send: send.hex
 	avrdude -v -p$(MCU) -carduino -P$(wildcard /dev/ttyUSB*) \
-		-b115200 -D -Uflash:w:$(TARGET).hex:i
+		-b115200 -D -Uflash:w:send.hex:i
+
+flash-receive: receive.hex
+	avrdude -v -p$(MCU) -carduino -P$(wildcard /dev/ttyUSB*) \
+		-b115200 -D -Uflash:w:receive.hex:i
 
 .PHONY: clean clean-rc-switch clean-core env
